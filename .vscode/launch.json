@@ -1,0 +1,15 @@
+{
+	"version": "0.2.0",
+	"configurations": [{
+		"name": "Attach to API (Docker)",
+		"type": "node",
+		"request": "attach",
+		"port": 9229,
+		"address": "localhost",
+		"restart": true,
+		"protocol": "inspector",
+		"localRoot": "${workspaceFolder}/apps/api", // 로컬 프로젝트의 API 소스 코드 경로
+		"remoteRoot": "/app/apps/api", // Docker 컨테이너 내부의 API 소스 코드 경로
+		"skipFiles": ["<node_internals>/**"]
+	}]
+}

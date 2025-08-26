@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: timescale/timescaledb-ha:pg16-all
+    container_name: auto-trading-db
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASS:-postgres}
+      - POSTGRES_DB=${DB_NAME:-auto-trading}
+    volumes:
+      - auto-trading_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: auto-trading-redis
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - auto-trading_redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    container_name: auto-trading-api
+    ports:
+      - '${API_PORT:-3100}:3100'
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASS:-postgres}@postgres:${DB_PORT:-5432}/${DB_NAME:-auto-trading}?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT:-6379}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./apps/api:/app/apps/api
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+      - ./nest-cli.json:/app/nest-cli.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./tsconfig.build.json:/app/tsconfig.build.json
+      - ./eslint.config.mjs:/app/eslint.config.mjs
+      - ./orm:/app/orm
+      - ./node_modules:/app/node_modules
+    command: npm run start:debug api
+
+volumes:
+  auto-trading_db_data:
+  auto-trading_redis_data:
