@@ -44,71 +44,39 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Debugging with Docker and VS Code
+## Support
 
-To debug the `api` application running in Docker with VS Code, follow these steps:
+Nest is an MIT licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-### 1. Update `docker-compose.yml` (Already done by Gemini CLI)
+## License
 
-Ensure your `docker-compose.yml` includes the `api` service with the debug port exposed and the `start:debug` command. This has already been configured:
+Nest is [MIT licensed](LICENSE).
 
-```yaml
-services:
-  api:
-    # ... other configurations ...
-    ports:
-      - '${API_PORT:-3100}:3100'
-      - '${API_DEBUG_PORT:-9229}:9229' # Debug port
-    command: npm run start:debug api # Start in debug mode
-    # ... other configurations ...
+```
+auto-trading-service/
+├─ apps/
+│  └─ api/
+│     └─ src/
+│        ├─ main.ts
+│        ├─ app.module.ts
+│        ├─ config/            # env, typeorm 설정
+│        ├─ libs/
+│        │  └─ common/         # 공통 유틸, outbox
+│        └─ modules/
+│           ├─ instrument/     # 종목
+│           ├─ market-data/    # 캔들/틱
+│           ├─ trading/        # 주문/포지션
+│           └─ reporting/      # 리포트
+├─ orm/                         # TypeORM DataSource & migrations
+├─ .env.example
+└─ package.json
 ```
 
-### 2. Create/Update `.vscode/launch.json`
+원칙:
 
-Create a `.vscode` folder in your project root if it doesn't exist, and then create a `launch.json` file inside it with the following content:
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Attach to API (Docker)",
-      "type": "node",
-      "request": "attach",
-      "port": 9229,
-      "address": "localhost",
-      "restart": true,
-      "protocol": "inspector",
-      "localRoot": "${workspaceFolder}/apps/api",
-      "remoteRoot": "/app/apps/api",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
-    }
-  ]
-}
-```
-
-### 3. Start Docker Containers
-
-Run your Docker containers from the project root directory:
-
-```bash
-npm run docker:start
-# or
-docker-compose up --build
-```
-
-This will start the `api` service in debug mode, listening for a debugger connection on port 9229.
-
-### 4. Attach Debugger in VS Code
-
-1.  Open VS Code.
-2.  Go to the **Run and Debug** view (the bug icon on the left sidebar).
-3.  Select **"Attach to API (Docker)"** from the dropdown menu at the top.
-4.  Click the **green play button** to connect the debugger.
-
-You can now set breakpoints in your TypeScript files (e.g., in `apps/api/src`) and debug your application.
+- **module 단위**로 `domain / application / infrastructure` 디렉터리 구분(도입 단계에서는 최소화 가능).
+- **ORM 엔티티는 infrastructure**, **도메인 엔티티/값객체는 domain**에 둔다.
+- **CQRS**: `application/commands|queries` 와 `application/handlers` 분리.
 
 ## Support
 
@@ -434,7 +402,71 @@ POST /engine/order/place
 - **/docs**: 아키텍처 개요, ERD, 시퀀스 다이어그램, API 스펙(OpenAPI)
 - 변경 시 **CHANGELOG** 업데이트 (Keep a Changelog 형식 권장)
 
+## 22) 디버깅 (Docker & VS Code)
 
+Docker 환경에서 `api` 애플리케이션을 VS Code로 디버깅하려면 다음 단계를 따르세요:
+
+### 1. `docker-compose.yml` 업데이트 (Gemini CLI가 이미 완료)
+
+`docker-compose.yml`에 디버그 포트가 노출되고 `start:debug` 명령이 포함된 `api` 서비스가 있는지 확인하세요. 이 설정은 이미 완료되었습니다:
+
+```yaml
+services:
+  api:
+    # ... 기타 설정 ...
+    ports:
+      - '${API_PORT:-3100}:3100'
+      - '${API_DEBUG_PORT:-9229}:9229' # 디버그 포트
+    command: npm run start:debug api # 디버그 모드로 시작
+    # ... 기타 설정 ...
+```
+
+### 2. `.vscode/launch.json` 생성/업데이트
+
+프로젝트 루트에 `.vscode` 폴더가 없으면 생성하고, 그 안에 `launch.json` 파일을 다음 내용으로 만드세요:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to API (Docker)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "address": "localhost",
+      "restart": true,
+      "protocol": "inspector",
+      "localRoot": "${workspaceFolder}/apps/api",
+      "remoteRoot": "/app/apps/api",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ]
+}
+```
+
+### 3. Docker 컨테이너 시작
+
+프로젝트 루트 디렉토리에서 Docker 컨테이너를 실행하세요:
+
+```bash
+npm run docker:start
+# 또는
+docker-compose up --build
+```
+
+이렇게 하면 `api` 서비스가 디버그 모드로 시작되고, 9229 포트에서 디버거 연결을 기다립니다.
+
+### 4. VS Code에서 디버거 연결
+
+1.  VS Code를 엽니다.
+2.  **실행 및 디버그** 뷰(왼쪽 사이드바의 벌레 아이콘)로 이동합니다.
+3.  상단 드롭다운 메뉴에서 **"Attach to API (Docker)"**를 선택합니다.
+4.  **녹색 재생 버튼**을 클릭하여 디버거를 연결합니다.
+
+이제 TypeScript 파일(예: `apps/api/src`)에 중단점을 설정하고 애플리케이션을 디버깅할 수 있습니다.
 
 ### 마지막 한 줄
 
