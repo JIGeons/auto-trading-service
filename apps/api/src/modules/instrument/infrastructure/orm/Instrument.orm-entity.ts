@@ -1,27 +1,24 @@
-import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
-
-
-export enum InstrumentType { CRYPTO='CRYPTO', EQUITY='EQUITY' }
-
+import { Entity, PrimaryColumn, Column, Index } from 'typeorm';
+import { InstrumentType } from '../../application/dto/RegisterInstrument.dto';
 
 @Entity('instruments')
-@Index(['exchange','symbol'], { unique: true })
+@Index(['exchange', 'symbol'], { unique: true })
 export class InstrumentOrmEntity {
-	@PrimaryGeneratedColumn('uuid') 
-	id!: string;
+  @PrimaryColumn({ type: 'uuid' })
+  id: string;
 
-	@Column() 
-	symbol!: string; // KRW-BTC, AAPL
+  @Column({ type: 'varchar' })
+  symbol: string;
 
-	@Column() 
-	exchange!: string; // UPBIT, BINANCE, NASDAQ
+  @Column({ type: 'varchar' })
+  exchange: string;
 
-	@Column({ type: 'enum', enum: InstrumentType }) 
-	type!: InstrumentType;
+  @Column({ type: 'enum', enum: InstrumentType })
+  type: InstrumentType;
 
-	@Column({ type: 'double precision', default: 0 }) 
-	tickSize!: number;
+  @Column({ type: 'double precision', default: 0 })
+  tickSize: number;
 
-	@Column({ type: 'double precision', default: 0 }) 
-	lotSize!: number;
+  @Column({ type: 'double precision', default: 0 })
+  lotSize: number;
 }

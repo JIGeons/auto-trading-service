@@ -1,26 +1,26 @@
-/**
- * 스텁
- */
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { OutboxEntity } from './OutboxEntity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class OutboxPublisher {
-	private readonly logger = new Logger(OutboxPublisher.name);
+  constructor(
+    @InjectRepository(OutboxEntity)
+    private readonly outboxRepository: Repository<OutboxEntity>,
+  ) {}
 
-	constructor(
-		@InjectDataSource() 
-		private readonly ds: DataSource
-	) {}
+  async publish(topic: string, payload: object): Promise<void> {
+    const outboxEntry = new OutboxEntity();
+    outboxEntry.id = uuidv4();
+    outboxEntry.topic = topic;
+    outboxEntry.payload = payload;
+    outboxEntry.createdAt = new Date();
+    outboxEntry.published = false;
 
-	async publishOnce() {
-		const rows = await this.ds.query(`SELECT * FROM outbox WHERE published = false ORDER BY id LIMIT 100`);
-		for (const r of rows) {
-			// TODO: BullMQ/Redis 등으로 발행
-			this.logger.log(`Publishing topic=${r.topic}`);
-			await this.ds.query(`UPDATE outbox SET published = true WHERE id = $1`, [r.id]);
-		}
-	}
+    await this.outboxRepository.save(outboxEntry);
+    // TODO: 실제 메시지 큐 (예: BullMQ)로 발행하는 로직 추가
+    console.log(`Outbox event saved: ${topic}, ${JSON.stringify(payload)}`);
+  }
 }

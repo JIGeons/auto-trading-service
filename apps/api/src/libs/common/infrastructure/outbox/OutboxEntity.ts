@@ -1,20 +1,19 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
+import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('outbox')
 export class OutboxEntity {
-	@PrimaryGeneratedColumn() 
-	id!: number;
+  @PrimaryColumn({ type: 'uuid' })
+  id: string;
 
-	@Column() 
-	topic!: string;
+  @Column({ type: 'varchar', length: 255 })
+  topic: string;
 
-	@Column('text') 
-	payload!: string;
+  @Column({ type: 'jsonb' })
+  payload: object;
 
-	@CreateDateColumn() 
-	createdAt!: Date;
+  @CreateDateColumn({ type: 'timestamp with time zone' })
+  createdAt: Date;
 
-	@Column({ default: false }) 
-	published!: boolean;
+  @Column({ type: 'boolean', default: false })
+  published: boolean;
 }

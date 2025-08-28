@@ -3,7 +3,36 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "apps/api/src",
   "monorepo": true,
-  "compilerOptions": {
-    "deleteOutDir": true
+  "compilerOptions": { "deleteOutDir": true },
+  "projects": {
+    "api": {
+      "type": "application",
+      "root": "apps/api",
+      "entryFile": "main",
+      "sourceRoot": "apps/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api/tsconfig.app.json"
+      }
+    },
+    "collector-rest": {
+      "type": "application",
+      "root": "apps/collector/rest-poller",
+      "entryFile": "main",
+      "sourceRoot": "apps/collector/rest-poller/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/colletor/rest-poller/tsconfig.app.json",
+        "assets": []
+      }
+    },
+    "collector-ws": {
+      "type": "application",
+      "root": "apps/collector/ws-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/collector/ws-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/colletor/ws-worker/tsconfig.app.json",
+        "assets": []
+      }
+    }
   }
 }
