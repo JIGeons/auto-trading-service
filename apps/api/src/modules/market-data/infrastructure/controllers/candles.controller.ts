@@ -1,13 +1,17 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Headers, Get, Post, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CandleEntity } from '../orm/candle.entity';
+import { CandleOrmEntity } from '../orm/candle.orm-entity';
+
+import { CandleBulkUpsertDto } from '../../application/dto/candle-bulk.dto';
+import { CandleIngestService } from '../../application/services/candle-ingest.service';
 
 
-@Controller({ version: '1', path: '/market-data' })
+@Controller({ version: '1', path: '/market-data/candles' })
 export class CandlesController {
 	constructor(
-		@InjectRepository(CandleEntity) private readonly repo: Repository<CandleEntity>
+		@InjectRepository(CandleOrmEntity) private readonly repo: Repository<CandleOrmEntity>,
+		private readonly candleService: CandleIngestService
 	) {}
 
 
@@ -26,5 +30,14 @@ export class CandlesController {
 		if (to) qb.andWhere('c.time < :to', { to });
 		const rows = await qb.getMany();
 		return { ok: true, data: rows };
+	}
+
+	@Post('bulk-upsert')
+	async bulkUpsert(
+		@Body() dto: CandleBulkUpsertDto,
+		@Headers('Idempotency-Key') idem?: string,
+	) {
+		await this.candleService.bulkUpsert(dto.items, idem ?? dto.idempotencyKey);
+		return { ok: true, count: dto.items.length }
 	}
 }

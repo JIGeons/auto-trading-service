@@ -6,7 +6,7 @@ import { InstrumentOrmEntity } from '../modules/instrument/infrastructure/orm/In
 import { OrderOrmEntity } from '../modules/trading/infrastructure/orm/order.entity';
 import { PositionEntity } from '../modules/trading/infrastructure/orm/position.entity';
 import { AccountOrmEntity } from '../modules/trading/infrastructure/orm/account.orm-entity';
-import { CandleEntity } from '../modules/market-data/infrastructure/orm/candle.entity';
+import { CandleOrmEntity } from '../modules/market-data/infrastructure/orm/candle.orm-entity';
 import { OutboxEntity } from '../libs/common/infrastructure/outbox/OutboxEntity';
 import { DataSourceOptions } from 'typeorm';
 

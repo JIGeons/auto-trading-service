@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, Column, Index } from 'typeorm';
 
 @Entity('candles')
 @Index(['time', 'instrumentId', 'tf'], { unique: true })
-export class CandleEntity {
+export class CandleOrmEntity {
   @PrimaryColumn({ type: 'timestamp with time zone' })
   time!: Date;
 

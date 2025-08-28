@@ -3,14 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { CandleRepositoryPort } from '../../domain/repositories/CandleRepository.port';
 import { Candle } from '../../domain/entities/candle';
-import { CandleEntity } from '../orm/candle.entity';
+import { CandleOrmEntity } from '../orm/candle.orm-entity';
 import { InstrumentId } from '../../../instrument/domain/value-objects/InstrumentId';
 
 @Injectable()
 export class CandleRepositoryAdapter implements CandleRepositoryPort {
   constructor(
-    @InjectRepository(CandleEntity)
-    private readonly candleRepository: Repository<CandleEntity>,
+    @InjectRepository(CandleOrmEntity)
+    private readonly candleRepository: Repository<CandleOrmEntity>,
   ) {}
 
   async save(candle: Candle): Promise<void> {
@@ -35,8 +35,8 @@ export class CandleRepositoryAdapter implements CandleRepositoryPort {
     return ormEntities.map(this.toDomainEntity);
   }
 
-  private toOrmEntity(candle: Candle): CandleEntity {
-    const ormEntity = new CandleEntity();
+  private toOrmEntity(candle: Candle): CandleOrmEntity {
+    const ormEntity = new CandleOrmEntity();
     ormEntity.time = candle.time;
     ormEntity.instrumentId = candle.instrumentId.value;
     ormEntity.tf = candle.tf;
@@ -48,7 +48,7 @@ export class CandleRepositoryAdapter implements CandleRepositoryPort {
     return ormEntity;
   }
 
-  private toDomainEntity(ormEntity: CandleEntity): Candle {
+  private toDomainEntity(ormEntity: CandleOrmEntity): Candle {
     return new Candle(
       ormEntity.time,
       new InstrumentId(ormEntity.instrumentId),

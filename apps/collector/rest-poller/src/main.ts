@@ -2,21 +2,24 @@
  * Nest + 스케줄러
  */
 import { NestFactory } from '@nestjs/core';
-import { Module } from '@nestjs/common';
-import { ScheduleModule, Cron } from '@nestjs/schedule';
+import { CollectorRestModule } from './collector.module';
 
-@Module({
-	imports: [ScheduleModule.forRoot()]
-})
-class CollectorRestModule {
-	@Cron('*/60 * * * * *')	// 60초 마다
-	async poll() {
-		// TODO: Upbit REST 1m candles 호출 -> Timescale INSERT
-		// ex) GET /v1/candles/minutes/1?market=KRW-BTC&count=200
-		// await repo.insertCandles(rows)
-		console.log('[rest-poller] tick');
-	}
-}
+
+// import { Module } from '@nestjs/common';
+// import { ScheduleModule, Cron } from '@nestjs/schedule';
+
+// @Module({
+// 	imports: [ScheduleModule.forRoot()]
+// })
+// class CollectorRestModule {
+// 	@Cron('*/60 * * * * *')	// 60초 마다
+// 	async poll() {
+// 		// TODO: Upbit REST 1m candles 호출 -> Timescale INSERT
+// 		// ex) GET /v1/candles/minutes/1?market=KRW-BTC&count=200
+// 		// await repo.insertCandles(rows)
+// 		console.log('[rest-poller] tick');
+// 	}
+// }
 
 async function bootstrap() {
 	const app = await NestFactory.createApplicationContext(CollectorRestModule);

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CqrsModule } from '@nestjs/cqrs';
-import { CandleEntity } from './infrastructure/orm/candle.entity';
+import { CandleOrmEntity } from './infrastructure/orm/candle.orm-entity';
 import { CandleRepositoryPort } from './domain/repositories/CandleRepository.port';
 import { CandleRepositoryAdapter } from './infrastructure/repositories/CandleRepository.adapter';
 import { GetCandlesHandler } from './application/handlers/GetCandles.handler';
@@ -18,7 +18,7 @@ const repositories = [
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CandleEntity]),
+    TypeOrmModule.forFeature([CandleOrmEntity]),
     // CqrsModule,
   ],
   controllers: [CandlesController],
